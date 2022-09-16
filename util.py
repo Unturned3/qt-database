@@ -122,7 +122,7 @@ class QT_record():
         if track_idx == -1:
             for i in range(0, self.dat.shape[1]):
                 sig = self.dat[:, i]
-                plt.plot(sig, label="track {}".format(i))
+                ax.plot(sig, label="track {}".format(i))
         else:
             sig = self.dat[:, track_idx]
             ax.plot(sig, label='track {}'.format(track_idx))
@@ -143,37 +143,3 @@ class QT_record():
         ax.legend()
         plt.show()
 
-
-def generate_training_data(ds_path: str, rec_names: str, out_path: str) -> None:
-
-    records: List[QT_record] = []
-    for i in rec_names:
-        rec = QT_record(ds_path, i)
-        rec.check_bracket_mismatch(fix_mismatches=True)
-        records.append(rec)
-    
-    for i in records:
-        # Extract training samples from each record
-        pass
-
-
-def generate_training_data(ds_path: str, gen_per_symbol: int = 1) -> None:
-    record_names = get_record_names(ds_path)
-    records: List[QT_record] = []
-    for i in record_names:
-        r = QT_record(ds_path, i)
-        r.check_bracket_mismatch(fix_mismatches=True)
-        r.normalize()
-        records.append(r)
-
-    for rec in records:
-        for idx, symbol in enumerate(rec.q1c.symbol):
-            if symbol != 'N':
-                continue
-            samp_idx = rec.q1c.sample[idx]
-            left_bound = max(samp_idx - 150, 0)
-            right_bound = min(samp_idx + 150, rec.dat.shape[0])
-
-            for i in range(0, gen_per_symbol):
-                left = random.randint(left_bound, right_bound - 200)
-                data: np.ndarray = rec.dat[left:left+200, 0].copy()
